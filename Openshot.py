@@ -1,5 +1,6 @@
 import os
 
+import urllib.request
 import time
 from requests import get, post
 from requests.auth import HTTPBasicAuth
@@ -7,7 +8,10 @@ from dotenv import load_dotenv
 from dotenv import dotenv_values
 config = dotenv_values(".env")
 
+
 class OpenshotProject:
+  """_summary_
+  """
   def __init__(self,project_name="default_name"):
     self.CLOUD_URL = config['CLOUD_URL']
     self.CLOUD_AUTH = HTTPBasicAuth(config['CLOUD_AUTH_USER'],config['CLOUD_AUTH_PWD'])
@@ -54,10 +58,10 @@ class OpenshotProject:
       end_point = '/projects/%s/clips/' % self.project_id
       clip_data = {
           "file": file_url,
-          "position": 0.0,
-          "start": 0.0,
-          "end": 30.0,
-          "layer": 1,
+          "position": position,
+          "start": start,
+          "end": end,
+          "layer": layer,
           "project": self.project_url,
           "json": "{}"
       }
@@ -102,3 +106,21 @@ class OpenshotProject:
       # print(r.json())
       print("Export Successfully Completed: %s!" % export_output_url)
       return export_output_url
+  
+  
+if __name__ =="__main__":
+  # instantiating project in openshot
+  openshot = OpenshotProject(project_name="bombay1_project")
+
+  # media file path
+  media_file = r'media_assets\\the race.mp4'
+
+  # openshot uploade media + create clips of it
+  openshot.Upload_clip_to_project(media_file,position=10,start=0,end=40)
+
+  # export and get url
+  export_url = openshot.export()
+  print(export_url)
+
+  # download video from url
+  urllib.request.urlretrieve(export_url, 'video_output.mp4')
